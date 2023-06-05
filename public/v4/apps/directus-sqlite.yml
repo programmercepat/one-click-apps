@@ -1,0 +1,69 @@
+captainVersion: 4
+
+services:
+    # Directus
+    $$cap_appname:
+        depends_on:
+        image: directus/directus:$$cap_directus_tag
+        volumes:
+            - $$cap_appname-uploads:/directus/uploads
+            - $$cap_appname-extensions:/directus/extensions
+            - $$cap_appname-database:/directus/database
+        restart: always
+        environment:
+            KEY: $$cap_directus_auth_public_key
+            SECRET: $$cap_directus_auth_secret_key
+            PUBLIC_URL: https://$$cap_appname.$$cap_root_domain
+            DB_CLIENT: 'sqlite3'
+            DB_FILENAME: './database/data.db'
+            ADMIN_EMAIL: $$cap_admin_email
+            ADMIN_PASSWORD: $$cap_admin_password
+            TELEMETRY: 'false'
+        caproverExtra:
+            containerHttpPort: '8055'
+
+caproverOneClickApp:
+    variables:
+        - label: Directus image tag
+          id: $$cap_directus_tag
+          defaultValue: '10.2.1'
+          validRegex: /.{1,}/
+          description: Tag of Directus image on https://hub.docker.com/r/directus/directus/tags
+
+        - label: Directus Auth Secret Key
+          id: $$cap_directus_auth_secret_key
+          defaultValue: $$cap_gen_random_hex(22)
+          validRegex: /^(?=.*\d).{10,}$/
+          description: Directus Auth Secret Key (must not be the same as Directus Auth Public Key)
+
+        - label: Directus Auth Public Key
+          id: $$cap_directus_auth_public_key
+          defaultValue: $$cap_gen_random_hex(22)
+          validRegex: /^(?=.*\d).{10,}$/
+          description: Directus Auth Public Key (must not be the same as Directus Auth Secret Key)
+
+        - label: Directus admin user email
+          id: $$cap_admin_email
+          defaultValue: admin@example.com
+          validRegex: /.{1,}/
+          description: Directus admin user email
+
+        - label: Directus admin user password
+          id: $$cap_admin_password
+          defaultValue: $$cap_gen_random_hex(22)
+          validRegex: /^(?=.*\d).{8,}$/
+          description: Directus admin user password
+
+    instructions:
+        end: >
+            Your service is available at http://$$cap_appname.$$cap_root_domain after a few minutes. You should enable HTTPS. If you won’t enable HTTPS adjust the PUBLIC_URL (environmental variable) in your App Configs.
+        start: >-
+            Directus is an open-source headless CMS and an Open Data Platform built to democratize the database. It provides a dynamic API and intuitive Admin Panel App. For more information and available options, see https://github.com/directus or the official documentation at https://docs.directus.io
+
+    displayName: 'Directus SQLite'
+
+    isOfficial: true
+
+    description: Directus is an open-source headless CMS and an Open Data Platform built to democratize the database. It provides a dynamic API and intuitive Admin Panel App.
+
+    documentation: Taken from https://docs.directus.io/self-hosted/docker-guide.html.
